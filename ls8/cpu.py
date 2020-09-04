@@ -7,10 +7,14 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        # self.interupt_vectors = ['0xFF', '0xFE', '0xFD', '0xFC', '0xFB', '0xFA', '0xF9', '0x8']
 
-    def load(self):
+    def load(self, program=[]):
         """Load a program into memory."""
+
 
         address = 0
 
@@ -30,6 +34,11 @@ class CPU:
             self.ram[address] = instruction
             address += 1
 
+    def ram_read(self, mar):
+        return self.ram[mar]
+
+    def ram_write(self, mar, mdr): # memory address register, memory data register
+        self.ram[mar] = mdr
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -62,4 +71,17 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+
+        num_operands = 0
+        alu_op = False
+        sets_pc = False
+        instruction_identifier = 0000
+
+        # need to implament a loop
+        instruction_register = self.ram_read(self.pc)
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+
+        if instruction_register == 0b10000010: # LDI
+            self.reg[operand_a] = operand_b
+            print(self.reg[operand_a])
