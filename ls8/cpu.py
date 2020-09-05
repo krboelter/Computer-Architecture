@@ -10,7 +10,13 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
-        # self.interupt_vectors = ['0xFF', '0xFE', '0xFD', '0xFC', '0xFB', '0xFA', '0xF9', '0x8']
+        self.flags = 0b00000000
+        self.looping = False
+        self.instruction_set = {
+            'HLT': 0b00000001,
+            'LDI': 0b10000010,
+            'PRN': 0b01000111,
+        }
 
     def load(self, program=[]):
         """Load a program into memory."""
@@ -71,17 +77,27 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        # reset registers
+        self.looping = True
 
-        num_operands = 0
-        alu_op = False
-        sets_pc = False
-        instruction_identifier = 0000
 
-        # need to implament a loop
-        instruction_register = self.ram_read(self.pc)
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
+        while self.looping:
+            instruction_register = self.ram_read(self.pc)
+            is_alu = instruction_register >> 5 & 0b1
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+            num_operands = instruction_register >> 6
 
-        if instruction_register == 0b10000010: # LDI
-            self.reg[operand_a] = operand_b
-            print(self.reg[operand_a])
+            if is_alu == 1: # if 1, needs to pass through the alu
+                pass
+
+            if instruction_register == self.instruction_set['HLT']:
+                self.looping = False
+
+            if instruction_register == self.instruction_set['LDI']:
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+
+            if instruction_register == self.instruction_set['PRN']:
+                print(self.reg[operand_a])
+                self.pc += 2
