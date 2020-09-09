@@ -26,10 +26,10 @@ class CPU:
             print("Usage example_cpu.py filename")
 
 
-        try:
-            program = []
+        program = []
 
-            with open(sys.argv) as file:
+        try:
+            with open(sys.argv[1]) as file:
                 for line in file:
                     split_line = line.split('#')
                     program.append(split_line[0])
