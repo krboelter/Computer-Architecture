@@ -12,29 +12,57 @@ class CPU:
         self.pc = 0
         self.flags = 0b00000000
         self.looping = False
+        self.file = sys.argv
         self.instruction_set = {
             'HLT': 0b00000001,
             'LDI': 0b10000010,
             'PRN': 0b01000111,
+            'MUL': 0b10100010,
         }
 
     def load(self, program=[]):
         """Load a program into memory."""
+        if len(sys.argv) != 2:
+            print("Usage example_cpu.py filename")
 
+
+        try:
+            program = []
+
+            with open(sys.argv) as file:
+                for line in file:
+                    split_line = line.split('#')
+                    program.append(split_line[0])
+        except:
+            program = [
+                0b10000010, # LDI R0,8
+                0b00000000,
+                0b00001000,
+                0b10000010, # LDI R1,9
+                0b00000000,
+                0b00001001,
+                0b10100010, # MUL R0,R1
+                0b00000011,
+                0b00000011,
+                0b01000111, # PRN R0
+                0b00000000,
+                0b00000001 # HLT
+            ]
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
+
 
         for instruction in program:
             self.ram[address] = instruction
@@ -96,6 +124,11 @@ class CPU:
 
             if instruction_register == self.instruction_set['LDI']:
                 self.reg[operand_a] = operand_b
+                self.pc += 3
+
+            if instruction_register == self.instruction_set['MUL']:
+                new_val = operand_a * operand_b
+                self.reg[00000000] = new_val
                 self.pc += 3
 
             if instruction_register == self.instruction_set['PRN']:
